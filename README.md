@@ -1,70 +1,72 @@
-# Fritz!Box DynDNS script for Cloudflare
-For German version, please read the German readme file.
+# Fritz!Box DynDNS Script for Cloudflare
+Für die deutsche Version lese bitte das deutsche ReadMe.
 
-This PHP script is designed to be used with a Fritz!Box, but will most likely work with other routers and devices that offer the ability to call a custom URL. The Fritz!Box will call the script automatically as soon as the IP address has changed.
+This PHP script is designed to be used with a Fritz!Box, but may also work with other routers and devices that offer the ability to call a custom URL and pass the IPv4 and IPv6 address. The Fritz!Box will call the script automatically as soon as the IPv4 and IPv6 address has been changed. The IP-addresses of the Fritz!Box are passed to the script.
 
-# Prerequisites
-Only a web server, a Cloudflare account (Free/Paid) and a domain registered at Cloudflare is required. The webserver only needs PHP and must be accessible via the internet. It may also work with a server in your own network, but this has not been tested.
+# Requirements
+Only a web server, a Cloudflare account (Free/Paid) and a domain registered with Cloudflare is required. The webserver only needs PHP and must be accessible via the internet. If necessary it also works with a server in your own network, but this has not been tested yet.
 
 # Features
-- Forward  the current IP address of the Fritzbox to Cloudflare (via API)
+- Transmission of the current IP address of the Fritzbox to Cloudflare (via API)
 - An unlimited number of records can be created with one call
 - The script also works if the web server is behind a Cloudflare proxy
 - Support of all record types that use an IP (A, AAAA, MX, etc.)
-- Automatic detection of IPv4 and IPv6*
-- Detailed log (can be activated optionally)
+- Automatic detection of IPv4 and IPv6
+- Detailed log (optionally activatable)
 - The record can be automatically proxied by cloudflare (useful depending on the application - e.g. web server)
-
-* For technical reasons it is unfortunately not possible to set a record for IPv4 AND IPv6, because the Fritzbox only transmits the IPv4 or IPv6 address when the script is called, but not both.
 
 # Installation
 Clone the repository to your web server. 
 
-You don't have to change anything in the script. All settings are done in your Fritz!Box. Just make sure that the script is accessible for the Fritz!Box (without authentication).
+You don't have to change anything about the script. All settings are done in your Fritz!Box. Just make sure that the script is accessible for the Fritz!Box (without authentication).
 
-First you need an API token from Cloudflare. Go to https://dash.cloudflare.com/profile/api-tokens and click on "Create Token".
+First you need an API token from Cloudflare. Call https://dash.cloudflare.com/profile/api-tokens and click on "Create Token".
 In the following step you can now choose different templates. The best is to use "Edit zone DNS". 
 First you have to configure the "Permissions". The script only needs access to "Zone.Zone" (Read) and "Zone.DNS" (Edit).
-At "Zone Resources" you can select either the desired zone or all zones. Optionally, you can also whitelist the IP of your web server to improve security.
+In the "Zone Resources" you can select either the desired zone or all zones. Optionally you can also whitelist the IP of your webserver to improve security. If you do this, don't forget to allow access for your IPv4 and IPv6 if your webserver has both.
 The option TTL should be left as it is, otherwise the token and the script will not work anymore.
 Now you only have to confirm and the token will be displayed.
 
 Now switch to the web interface of your Fritz!Box: Internet -> Sharing -> DynDNS
 Activate the DynDNS service and select "Custom" as provider. 
-In the update URL you now enter "https://your-domain.com/fritzbox_dyndns.php?cf_key=<pass>&domain=<domain>".
-The following URL parameters are available and can be added to the URL if needed:
-- Log: The script writes a detailed log in the directory of the PHP file. Add "&log=true" to the end of the URL.
+In the update URL you now enter "https://your-domain.com/fritzbox_dyndns.php?cf_key=<pass>&domain=<domain>&ipv4=<ipaddr>&ipv6=<ip6addr>".
+The following URL parameters are available and can be added to the URL if necessary:
+- Log: The script writes a detailed log into the directory of the PHP file. Add "&log=true" to the end of the URL.
 - Proxy: The script activates the proxy mode of Cloudflare for the DNS records. Add "&proxy=true" to the end of the URL.
 In the following you can now enter the domain name, i.e. the desired DNS record. The script can also handle multiple DNS records (even with different domains). To do this, you only have to separate the records with a semicolon (e.g. fritzbox.your-domain.com;nas.your-domain.com;fritzbox.example.com).
 The input of a user name is a mandatory field, but is not required by the script. Just enter "null" there, the value will not be considered.
-Finally, you have to enter the API token generated by Cloudflare as password and click "Apply". 
+Finally you have to enter the API token generated by Cloudflare as password and click "Apply". 
 The Fritz!Box should now respond shortly.
     
 Note: It should not be a problem if the script is publicly available, because you have to pass the Cloudflare API token with every call. 
     
 # Known Bugs and FAQ
-## The Fritz!Box regularly displays the error message "DynDNS error: The specified domain name cannot be resolved despite successful update" in the log.
-The reason for the error is unknown to me. The error also occurs if only one domain name was specified. Theoretically the Fritz!Box resolves the specified name, gets the IP and compares it with its own IP. Although the IP matches, the error is still displayed. But the error message has no influence on the function.
 
 ## The Fritz!Box displays the error message "DynDNS error: The DynDNS provider reports 401 - Unauthorized" or similar in the log.
-In case of the above error message, probably an authentication via the .htaccess file is active. If the message contains a different HTTP error, there is also an error with the web server.
+In case of the above mentioned error message, probably an authentication via the .htaccess file is active. If the message contains another HTTP error, there is also an error with the web server.
 
-## The IP address of the DNS record is not correct.
-One reason might be that your web server is running behind a proxy that is changing the IP. This is for example the case with Cloudflare when the proxy is active (the IP address is then no longer yours, but one of Cloudflare's). The Cloudflare proxy was implemented in the script and therefore works even if the webserver is behind the proxy. For similar services, you will probably have to adapt the script. Create an issue and I will have a look at it.
+## The log shows one of the following error messages: "IPv4 not available or invalid, ignoring" or "IPv6 not available or invalid, ignoring". 
+It is possible that one of the messages is displayed in the log even though IPv4 or IPv6 is available. The reason is that the Fritz!Box sometimes calls the script before an IPv4 or IPv6 address has been assigned. So the script is missing the IPv4 or IPv6 address. The Fritz!Box will call the script again later and change the address afterwards.
+
+## The log will show "Neither IPv4 nor IPv6 available. Probably the parameters are missing in the update URL. Please note that the update URL has changed with the script version 2.0 You have to change this setting in your Fritz!Box.
+After updating to version 2.0 the update URL in your Fritz!Box must be changed (see installation). If you have already done so, it is possible that the Fritz!Box called the script before an IPv4 and IPv6 address was available. You do not have to do anything, as soon as the IPs are available the Fritz!Box will call the script again. 
+
+## The IP address of the DNS record is incorrect.
+The Fritz!Box passes the IPv4 and IPv6 address by itself, so they can't be wrong. If the IP address is still not correct you should activate the log. Possibly something in your setup has changed.
+Another reason could be the change of your network connection. If you have changed from Dual-Stack to DS-Lite, the A-record (IPv4) is not deleted, but also not updated anymore, because you don't have a public IPv4 address anymore. This can result in obsolete records. In such a case you have to take action yourself and delete the obsolete records manually. The same applies for IPv6. 
 
 ## Nothing happens!?!
-First activate the log ("&log=true" append to the URL) and look at the log. If you can't find anything, create an issue with the content of the log file.
+First activate the log ("&log=true" append to the URL) and look at the log. If you cannot find anything, create an issue with the content of the logfile.
 
 ## Can the script delete DNS records?
-No! The script does not delete DNS records. The script checks if the given DNS record already exists and creates one if necessary. Otherwise the record is only updated, but never deleted.
+No! The script does not delete DNS records. The script checks if the given DNS record already exists and creates one if necessary. Otherwise the record is only updated, but never deleted. Please take this into account if IPv4 or IPv6 is switched off for you (see "The IP address of the DNS record is not correct.")
 
 ## Which DNS record types are supported?
 All types of records that use an IP are supported, e.g. A, AAAA, MX, etc. However, the script can only create A and AAAA records. If you also need an MX record, for example, you have to create it yourself in your Cloudflare account. The regular updates will then be done by the script.
 
 ## Is IPv6 also supported?
-Yes! Your Fritz!Box calls the script with only one IP (either IPv4 or IPv6). You can only influence this yourself to a limited extent. If you have dual-stack with IPv4 and IPv6, it depends on whether you address the web server with IPv4 or IPv6. Unfortunately I don't have the possibility to test it, but most likely your webserver must support IPv6 if you have Dual-Stack-Lite. 
-Basically the script can detect if you have an IPv4 or IPv6 address and creates an A or AAAA record accordingly.
+Yes, the Fritz!Box also passes the IPv6 address. The script automatically detects if an IPv6 address is available or not. If yes, an AAAA record is created for this address. If not, IPv6 is skipped completely.
 
 # Planned functions
-- Determination of the IPv4 or IPv6 address via MyFritz, so that a DNS record can be created in parallel for IPv4 and Ipv6
-- Optional configurable e-mail notification (e.g. in case of errors or on request with every IP change)
+- Optional configurable e-mail notification (e.g. in case of errors or if desired on every IP change)
+- Deletion of records to prevent obsolete records (only in case a record is no longer available: e.g. switch from DS to DS-Lite)
