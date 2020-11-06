@@ -29,7 +29,10 @@ Now you only have to confirm and the token will be displayed.
 
 Now switch to the web interface of your Fritz!Box: Internet -> Sharing -> DynDNS
 Activate the DynDNS service and select "Custom" as provider. 
-In the update URL you now enter "https://your-domain.com/fritzbox_dyndns.php?cf_key=<pass>&domain=<domain>&ipv4=<ipaddr>&ipv6=<ip6addr>".
+In the update URL you now enter:
+```
+https://your-domain.com/fritzbox_dyndns.php?cf_key=<pass>&domain=<domain>&ipv4=<ipaddr>&ipv6=<ip6addr>
+```
 The following URL parameters are available and can be added to the URL if necessary:
 - Log: The script writes a detailed log into the directory of the PHP file. Add "&log=true" to the end of the URL.
 - Proxy: The script activates the proxy mode of Cloudflare for the DNS records. Add "&proxy=true" to the end of the URL.
