@@ -1,7 +1,7 @@
 <?php
 /**
 Author: 1rfsNet
-Version: 2.0
+Version: 2.0.1
 Created: 26.04.2020
 Updated: 06.11.2020
 License: GNU General Public License v3.0
@@ -66,14 +66,14 @@ foreach($domains as $domain) {
         foreach($response as $record) {
             wlog("INFO","Found record for '".$domain."': Type: ".$record["type"]." | IP: ".$record["content"]." | Last modified: ".$record["modified_on"]);
             if($ipv4 == $record["content"]) { wlog("INFO","Skipped record, because ipv4 is already up-to-date."); continue; }
-            else if($ipv4) {
+            else if($record["content"] == "A") {
                 $response = cf_curl("zones/".$zone."/dns_records/".$record["id"], array("type" => "A", "name" => $domain, "content" => $ipv4, "ttl" => 120, "proxied" => $proxy ), true);
                 if(!$response["success"]) wlog("ERROR","Could not update record for '".$domain."'. Continue with next record, if available.");
                 else wlog("INFO","Updated A-Record with ip '".$ipv4."' successfully.");
                 continue;
             }
             if($ipv6 == $record["content"]) { wlog("INFO","Skipped record, because ipv6 is already up-to-date."); continue; }
-            else if($ipv6) {
+            else if($record["content"] == "AAAA") {
                 $response = cf_curl("zones/".$zone."/dns_records/".$record["id"], array("type" => "AAAA", "name" => $domain, "content" => $ipv6, "ttl" => 120, "proxied" => $proxy ), true);
                 if(!$response["success"]) wlog("ERROR","Could not update record for '".$domain."'. Continue with next record, if available.");
                 else wlog("INFO","Updated AAAA-Record with ip '".$ipv6."' successfully.");
