@@ -16,7 +16,7 @@ Parameters:
 - ipv6 (is automatically provided by the Fritz!Box) - optional (can be removed if you don't want to use ipv6)
 - log (true/false) - optional (default: false)
 - proxy (true/false) - optional (default: false)
-Fritz!Box update URL: https://example.com/fritz_dyndns.php?cf_key=<pass>&domain=<domain>&ipv4=<ipaddr>&ipv6=<ipv6addr>&log=<true/false>&proxy=<true/false>
+Fritz!Box update URL: https://example.com/fritz_dyndns.php?cf_key=<pass>&domain=<domain>&ipv4=<ipaddr>&ipv6=<ip6addr>&log=<true/false>&proxy=<true/false>
 */
 
 wlog("INFO","===== Starting Script =====");
