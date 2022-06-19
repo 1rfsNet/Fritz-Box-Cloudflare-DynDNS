@@ -4,7 +4,7 @@ Für die deutsche Version lese bitte das deutsche ReadMe.
 This PHP script is designed to be used with a Fritz!Box, but may also work with other routers and devices that offer the ability to call a custom URL and pass the IPv4 and IPv6 address. The Fritz!Box will call the script automatically as soon as the IPv4 and IPv6 address has been changed. The IP-addresses of the Fritz!Box are passed to the script.
 
 # Requirements
-Only a web server, a Cloudflare account (Free/Paid) and a domain registered with Cloudflare is required. The webserver only needs PHP and must be accessible via the internet. If necessary it also works with a server in your own network, but this has not been tested yet.
+Only a web server, a Cloudflare account (Free/Paid) and a domain registered with Cloudflare is required. The webserver only needs PHP, PHP-Curl and must be accessible via the internet. If necessary it also works with a server in your own network, but this has not been tested yet.
 
 # Features
 - Transmission of the current IP address of the Fritzbox to Cloudflare (via API)
