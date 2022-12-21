@@ -1,9 +1,9 @@
 <?php
 /**
 Author: 1rfsNet
-Version: 2.0.2
+Version: 2.0.3
 Created: 26.04.2020
-Updated: 25.11.2020
+Updated: 21.12.2022
 License: GNU General Public License v3.0
 
 Description:
@@ -11,7 +11,7 @@ This simple PHP script replaces a DynDNS provider and passes your current IP add
 
 Parameters: 
 - Cloudflare api key (as password) - required
-- domain(s) (as domain) -> use multiple domains by separating by semicolon (;) - required
+- domain(s) (as domain) -> use multiple domains by separating by comma (,) - required
 - ipv4 (is automatically provided by the Fritz!Box) - optional (can be removed if you don't want to use ipv4)
 - ipv6 (is automatically provided by the Fritz!Box) - optional (can be removed if you don't want to use ipv6)
 - log (true/false) - optional (default: false)
@@ -35,7 +35,7 @@ $auth = cf_curl("zones");
 if(!$auth["success"]) { wlog("ERROR","Cloudflare authentication failed: ".$auth["errors"][0]["message"]); wlog("INFO","Script aborted"); die; } else wlog("INFO","Cloudflare authentication successful");
 
 wlog("INFO","Found records to set: ".$_GET["domain"]);
-$domains = explode(";", $_GET["domain"]); 
+$domains = explode(",", $_GET["domain"]); 
 
 foreach($domains as $domain) {
     wlog("INFO","Find zone for record '".$domain."'");
