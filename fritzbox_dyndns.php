@@ -1,9 +1,9 @@
 <?php
 
 // Author: 1rfsNet
-// Version: 2.0.4
+// Version: 2.0.5
 // Created: 26.04.2020
-// Updated: 02.05.2023
+// Updated: 15.05.2023
 // License: GNU General Public License v3.0
 //
 // Description:
