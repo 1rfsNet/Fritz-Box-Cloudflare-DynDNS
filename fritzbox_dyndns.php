@@ -59,9 +59,7 @@ if (!$auth["success"]) {
     wlog("ERROR", "Cloudflare authentication failed: " . $auth["errors"][0]["message"]);
     wlog("INFO", "Script aborted");
     exit_error(401, "Cloudflare authentication failed: " . $auth["errors"][0]["message"]);
-} else {
-    wlog("INFO", "Cloudflare authentication successful");
-}
+} else wlog("INFO", "Cloudflare authentication successful");
 
 wlog("INFO", "Found records to set: " . $_GET["domain"]);
 $domains = explode(",", $_GET["domain"]);
@@ -77,8 +75,7 @@ foreach ($domains as $domain) {
         wlog("ERROR", "Could not set record '" . $domain . "', because the script could not determine the zone id (check api permissions and resources). Continue with next domain, if available.");
         $result = "failure";
         continue;
-    } else
-        wlog("INFO", "Found zone id (" . $response["result"][0]["id"] . ") for '" . $domain . "'.");
+    } else wlog("INFO", "Found zone id (" . $response["result"][0]["id"] . ") for '" . $domain . "'.");
     $zone = $response["result"][0]["id"];
     $response = cf_curl("zones/" . $zone . "/dns_records?name=" . $domain);
     $response = $response["result"];
@@ -89,16 +86,14 @@ foreach ($domains as $domain) {
             if (!$response["success"]) {
                 wlog("ERROR", "Could not create record for '" . $domain . "'. Continue with next record, if available.");
                 $result = "failure";
-            } else
-                wlog("INFO", "Created new A-Record for '" . $domain . "' with ip '" . $ipv4 . "' successfully.");
+            } else wlog("INFO", "Created new A-Record for '" . $domain . "' with ip '" . $ipv4 . "' successfully.");
         }
         if ($ipv6) {
             $response = cf_curl("zones/" . $zone . "/dns_records", array("type" => "AAAA", "name" => $domain, "content" => $ipv6, "ttl" => 1, "proxied" => $proxy));
             if (!$response["success"]) {
                 wlog("ERROR", "Could not create record for '" . $domain . "'. Continue with next record, if available.");
                 $result = "failure";
-            } else
-                wlog("INFO", "Created new AAAA-Record for '" . $domain . "' with ip '" . $ipv6 . "' successfully.");
+            } else wlog("INFO", "Created new AAAA-Record for '" . $domain . "' with ip '" . $ipv6 . "' successfully.");
         }
     } else {
         foreach ($response as $record) {
@@ -111,8 +106,7 @@ foreach ($domains as $domain) {
                 if (!$response["success"]) {
                     wlog("ERROR", "Could not update record for '" . $domain . "'. Continue with next record, if available.");
                     $result = "failure";
-                } else
-                    wlog("INFO", "Updated A-Record with ip '" . $ipv4 . "' successfully.");
+                } else wlog("INFO", "Updated A-Record with ip '" . $ipv4 . "' successfully.");
                 continue;
             }
             if ($ipv6 == $record["content"]) {
@@ -123,51 +117,40 @@ foreach ($domains as $domain) {
                 if (!$response["success"]) {
                     wlog("ERROR", "Could not update record for '" . $domain . "'. Continue with next record, if available.");
                     $result = "failure";
-                } else
-                    wlog("INFO", "Updated AAAA-Record with ip '" . $ipv6 . "' successfully.");
+                } else wlog("INFO", "Updated AAAA-Record with ip '" . $ipv6 . "' successfully.");
                 continue;
             }
         }
     }
 }
 echo ("Result: $result");
-wlog("INFO", "Script completed");
+wlog("INFO", "===== Script completed =====");
 exit();
 
-function cf_curl($url, $post = false, $put = false)
-{
+function cf_curl($url, $post = false, $put = false) {
     $cf_key = $_GET["cf_key"];
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "https://api.cloudflare.com/client/v4/" . $url);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE);
-    if ($put)
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+    if ($put) curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $cf_key, 'Content-Type: application/json'));
-    if ($post)
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
+    if ($post) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-
     $response = json_decode(curl_exec($ch), true);
     curl_close($ch);
     return $response;
 }
 
-function wlog($error, $msg)
-{
-    if (!isset($_GET["log"]) || !$_GET["log"])
-        return;
-    $domains = explode(";", $_GET["domain"]);
-    $log = fopen("log-" . $domains[0] . ".txt", "a");
-    fwrite($log, date("Y-m-d H:i:s") . " - " . $error . " - " . $msg . "\n");
-    fclose($log);
+function wlog($error, $msg) {
+    if (!isset($_GET["log"]) || !$_GET["log"]) return;
+    $domains = explode(",", $_GET["domain"]);
+    file_put_contents("log-" . $domains[0] . ".txt", date("Y-m-d H:i:s") . " - " . $error . " - " . $msg . "\n", FILE_APPEND | LOCK_EX);
 }
 
-function exit_error($error_code, $msg)
-{
+function exit_error($error_code, $msg) {
     http_response_code($error_code);
     echo ($msg);
     exit();
 }
 ?>
-
